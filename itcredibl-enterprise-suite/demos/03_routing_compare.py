@@ -3,12 +3,21 @@
 # Env:  ITCREDIBL_PROVIDERS, ITCREDIBL_MODEL, ITCREDIBL_WEIGHT_LATENCY, ITCREDIBL_WEIGHT_COST,
 #       ITCREDIBL_WEIGHT_QUALITY, ITCREDIBL_WEIGHT_THROUGHPUT, ITCREDIBL_CONC (optional)
 
-import asyncio, os, time, json, math
+import asyncio
+import json
+import math
+import os
+import time
+
 from itcredibl_enterprise.client import ITcrediblClient
-from itcredibl_enterprise.console import header, kv_table, box
+from itcredibl_enterprise.console import box, header, kv_table
 
 # Providers to compare (comma-separated)
-PROVIDERS = [p.strip() for p in os.getenv("ITCREDIBL_PROVIDERS", "openai,anthropic,groq").split(",") if p.strip()]
+PROVIDERS = [
+    p.strip()
+    for p in os.getenv("ITCREDIBL_PROVIDERS", "openai,anthropic,groq").split(",")
+    if p.strip()
+]
 MODEL = os.getenv("ITCREDIBL_MODEL", "gpt-4o")
 
 # Weighting (defaults favor quality, then latency, then cost, then throughput)
@@ -18,7 +27,9 @@ W_QUAL = float(os.getenv("ITCREDIBL_WEIGHT_QUALITY", "0.40"))
 W_TPS = float(os.getenv("ITCREDIBL_WEIGHT_THROUGHPUT", "0.10"))
 
 # Quality probe: aim for an exact target to allow objective scoring
-QUALITY_PROMPT = os.getenv("ITCREDIBL_QUALITY_PROMPT", "Reply with exactly the single word: PARIS")
+QUALITY_PROMPT = os.getenv(
+    "ITCREDIBL_QUALITY_PROMPT", "Reply with exactly the single word: PARIS"
+)
 QUALITY_EXPECTED = os.getenv("ITCREDIBL_QUALITY_EXPECTED", "paris").strip().lower()
 
 CONC = max(1, int(os.getenv("ITCREDIBL_CONC", "2")))
@@ -26,7 +37,9 @@ CONC = max(1, int(os.getenv("ITCREDIBL_CONC", "2")))
 
 def _extract_text(resp):
     try:
-        return (resp.get("choices", [{}])[0].get("message", {}) or {}).get("content") or ""
+        return (resp.get("choices", [{}])[0].get("message", {}) or {}).get(
+            "content"
+        ) or ""
     except Exception:
         return ""
 
@@ -49,7 +62,10 @@ async def measure_provider(provider: str) -> dict:
     r1 = await client.chat(
         messages=[
             {"role": "system", "content": "You are concise and factual."},
-            {"role": "user", "content": "Give two bullets explaining zero trust security."},
+            {
+                "role": "user",
+                "content": "Give two bullets explaining zero trust security.",
+            },
         ],
         model=MODEL,
         provider=provider,
@@ -107,13 +123,14 @@ async def measure_provider(provider: str) -> dict:
 def _normalize_inverse(values):
     # Lower is better (latency, cost) => convert to 0..1 where 1 is best
     # If any None, treat them as median of known values
-    nums = [v for v in values if isinstance(v, (int, float))]
+    nums = [v for v in values if isinstance(v, int | float)]
     if not nums:
         return [0.5 for _ in values]
-    mn = min(nums); mx = max(nums)
+    mn = min(nums)
+    mx = max(nums)
     out = []
     for v in values:
-        if not isinstance(v, (int, float)):
+        if not isinstance(v, int | float):
             v = (mn + mx) / 2
         if v <= 0:
             out.append(1.0 if v == mn else 0.0)
@@ -126,11 +143,14 @@ def _normalize_inverse(values):
 
 def _normalize_direct(values):
     # Higher is better (throughput, quality)
-    nums = [v for v in values if isinstance(v, (int, float))]
+    nums = [v for v in values if isinstance(v, int | float)]
     if not nums:
         return [0.5 for _ in values]
     mx = max(nums)
-    return [float(v) / float(mx) if isinstance(v, (int, float)) and mx > 0 else 0.0 for v in values]
+    return [
+        float(v) / float(mx) if isinstance(v, int | float) and mx > 0 else 0.0
+        for v in values
+    ]
 
 
 async def main():
@@ -138,6 +158,7 @@ async def main():
 
     # Measure in limited parallel to keep things snappy but not overload
     sem = asyncio.Semaphore(CONC)
+
     async def guarded(p):
         async with sem:
             try:
@@ -154,7 +175,10 @@ async def main():
     # Filter out errors
     ok = [r for r in results if not r.get("error")]
     if not ok:
-        box("All providers failed. Check API URL, model name, or key.", title="Routing Result")
+        box(
+            "All providers failed. Check API URL, model name, or key.",
+            title="Routing Result",
+        )
         return
 
     # Normalize & score
@@ -166,21 +190,33 @@ async def main():
     overall = []
     for i, r in enumerate(ok):
         score = (
-            W_LAT * lat_scores[i] +
-            W_COST * cost_scores[i] +
-            W_QUAL * qual_scores[i] +
-            W_TPS * tps_scores[i]
+            W_LAT * lat_scores[i]
+            + W_COST * cost_scores[i]
+            + W_QUAL * qual_scores[i]
+            + W_TPS * tps_scores[i]
         )
         overall.append({"provider": r["provider"], "score": round(score, 4)})
 
     # Pick best
     best = max(overall, key=lambda x: x["score"]) if overall else None
     if best:
-        box(json.dumps({
-            "winner": best["provider"],
-            "score": best["score"],
-            "weights": {"latency": W_LAT, "cost": W_COST, "quality": W_QUAL, "throughput": W_TPS},
-        }, indent=2), title="Smart Router Decision")
+        box(
+            json.dumps(
+                {
+                    "winner": best["provider"],
+                    "score": best["score"],
+                    "weights": {
+                        "latency": W_LAT,
+                        "cost": W_COST,
+                        "quality": W_QUAL,
+                        "throughput": W_TPS,
+                    },
+                },
+                indent=2,
+            ),
+            title="Smart Router Decision",
+        )
+
 
 if __name__ == "__main__":
     asyncio.run(main())

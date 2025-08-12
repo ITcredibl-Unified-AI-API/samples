@@ -76,6 +76,34 @@ python -m itcredibl_enterprise_cli policy
 python -m itcredibl_enterprise_cli residency
 ```
 
+
+# Install dev + obs extras and hooks
+
+pip install -e .[dev,obs]
+pre-commit install
+
+# Run CI locally
+
+pre-commit run --all-files
+pytest -q
+
+
+python -m itcredibl_enterprise_cli basic
+python -m itcredibl_enterprise_cli routing
+python demos\13_chaos_failover.py
+python demos/14_quality_judge.py
+python demos\15_rag_embeddings.py
+
+# Achieved:
+
+Chaos failover shows SLA continuity despite induced faults.
+
+Judge scoring proves quality routing is measurable, not subjective.
+
+Tracing + metrics provide evidence for SRE/FinOps.
+
+RAG local demonstrates developer ergonomics when external features (embeddings) are blocked.
+
 ## 📚 Learn More
 - [ai-insight.itcredibl.com](https://ai-insight.itcredibl.com) — Platform features, docs, and competitive analysis
 - [itcredibl.com](https://itcredibl.com) — Company and support

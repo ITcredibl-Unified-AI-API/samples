@@ -1,5 +1,8 @@
-import os, pytest
-from itcredibl_enterprise.client import ITcrediblClient, ITCAuthError
+import os
+
+import pytest
+from itcredibl_enterprise.client import ITCAuthError, ITcrediblClient
+
 
 def test_missing_key():
     old = os.environ.pop("ITCREDIBL_API_KEY", None)
@@ -7,4 +10,5 @@ def test_missing_key():
         with pytest.raises(ITCAuthError):
             ITcrediblClient()
     finally:
-        if old: os.environ["ITCREDIBL_API_KEY"] = old
+        if old:
+            os.environ["ITCREDIBL_API_KEY"] = old

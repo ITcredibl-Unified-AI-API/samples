@@ -2,11 +2,17 @@ README.md
 pyproject.toml
 src/itcredibl_enterprise/__init__.py
 src/itcredibl_enterprise/audit.py
+src/itcredibl_enterprise/capabilities.py
+src/itcredibl_enterprise/chaos.py
+src/itcredibl_enterprise/circuit_breaker.py
 src/itcredibl_enterprise/client.py
 src/itcredibl_enterprise/console.py
 src/itcredibl_enterprise/costs.py
 src/itcredibl_enterprise/health.py
+src/itcredibl_enterprise/judge.py
+src/itcredibl_enterprise/metrics.py
 src/itcredibl_enterprise/policies.py
+src/itcredibl_enterprise/tracing.py
 src/itcredibl_enterprise/utils.py
 src/itcredibl_enterprise.egg-info/PKG-INFO
 src/itcredibl_enterprise.egg-info/SOURCES.txt
