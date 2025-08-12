@@ -1,0 +1,29 @@
+# Node.js
+node_modules/
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Build
+build/
+
+# Coverage
+coverage/
+
+# Others
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*

@@ -1,0 +1,33 @@
+{
+  "name": "@itcredibl/sdk",
+  "version": "1.0.1",
+  "description": "Official ITcredibl AI Gateway SDK for JavaScript and TypeScript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf dist",
+    "lint": "echo \"lint not configured\"",
+    "type-check": "tsc --noEmit",
+    "test": "jest --passWithNoTests",
+    "prepublishOnly": "npm run clean && npm run build && npm test",
+    "example": "tsc -p tsconfig.json && node dist/examples/basic.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.12",
+    "jest": "^29.7.0",
+    "rimraf": "^5.0.7",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.5.4"
+  },
+  "license": "MIT"
+}

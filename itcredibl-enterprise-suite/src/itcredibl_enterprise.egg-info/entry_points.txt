@@ -1,0 +1,2 @@
+[console_scripts]
+itcredibl = itcredibl_enterprise_cli:app
